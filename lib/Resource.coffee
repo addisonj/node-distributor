@@ -1,13 +1,8 @@
 _ = require "underscore"
+defaults = require "./defaultOpts"
 
-capitialize = (s) -> s.charAt(0).toUppserCase + s.slice(1)
+{capitialize} = require "./util"
 class Resource
-  defaultPublishOpts: {
-    mandatory: false
-    immediate: false
-    deliveryMode: 2
-  }
-
   constructor: (@routingKey, @exchange) ->
     @keys = [@routingKey]
 
@@ -17,12 +12,14 @@ class Resource
     pub = (message, opts, cb) =>  @_publish newKey, message, opts, cb
     @["publish#{capitialize(subTopic)}"] = pub
 
+  # both opts and cb are optional
   _publish: (name, message, opts, cb) ->
     if typeof opts == "function"
       cb = opts
-      opts = _.clone @defaultPublishOpts
+      opts = _.clone defaults.publish
     else
-      opts = _.clone opts, @defaultPublishOpts
+      cb = cb || ->
+      opts = _.clone (opts|| defaults.publish), defaults.publish
 
     @exchange.publish name, message, opts, cb
 
@@ -31,9 +28,9 @@ class Resource
 
   getInfo: ->
     info = {
-      exchange: @exchange
-      defaultKey: @name
-      keys: @keys
+      exchange: @exchange.name
+      defaultTopic: @routingKey
+      topics: @keys
     }
     return info
 

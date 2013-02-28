@@ -4,7 +4,8 @@
   "description": "Easy distribution of resources through AMQP",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers coffee:coffee-script -C -R spec test/*.coffee"
+    "test": "mocha --compilers coffee:coffee-script -C -R spec test/*.coffee",
+    "prepublish": "coffee -c lib/*.coffee"
   },
   "repository": {
     "type": "git",
@@ -19,8 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "underscore": "~1.4.4",
-    "amqp": "git://github.com/postwait/node-amqp.git#127a4ca3",
-    "request": "~2.14.0"
+    "amqp": "git://github.com/postwait/node-amqp.git#127a4ca3"
   },
   "devDependencies": {
     "mocha": "~1.8.1",

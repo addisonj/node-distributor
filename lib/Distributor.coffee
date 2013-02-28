@@ -2,19 +2,12 @@ amqp = require "amqp"
 _ = require "underscore"
 Resource = require "./Resource"
 {EventEmitter} = require "events"
+defaults = require "./defaultOpts"
 
 class Distributor extends EventEmitter
-  defaultExchangeOpts: {
-    type: "topic"
-    passive: false
-    durable: true
-    confirm: true
-    autoDelete: false
-    noDeclare: false
-  }
-
-  constructor: (@connectionString, @serviceName, @exchangeName) ->
-    @connection = amqp.createConnection {url: @connectionString}
+  constructor: (connString, @serviceName, @exchangeName, @connectOpts) ->
+    @connectInfo = if typeof connString == "object" then connString else {url: connString}
+    @connection = amqp.createConnection @connectInfo, @connectOpts
     @connection.once "ready", =>
       @isReady = true
 
@@ -26,9 +19,9 @@ class Distributor extends EventEmitter
   createExchange: (name, opts, cb) ->
     if typeof opts == "function"
       cb = opts
-      opts = _.clone @defaultExchangeOpts
+      opts = _.clone defaults.exchange
     else
-      opts = _.clone opts, @defaultExchangeOpts
+      opts = _.clone opts, defaults.exchange
 
     if @isReady
       @connection.exchange name, opts, cb
