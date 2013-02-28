@@ -1,0 +1,29 @@
+{
+  "name": "distributor",
+  "version": "0.0.0",
+  "description": "Easy distribution of resources through AMQP",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script -C -R spec test/*.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/addisonj/distributor"
+  },
+  "keywords": [
+    "amqp",
+    "rabbitmq",
+    "resources"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "underscore": "~1.4.4",
+    "amqp": "git://github.com/postwait/node-amqp.git#127a4ca3",
+    "request": "~2.14.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.8.1",
+    "coffee-script": "~1.5.0"
+  }
+}
