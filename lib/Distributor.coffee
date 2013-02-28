@@ -3,7 +3,7 @@ _ = require "underscore"
 Resource = require "./Resource"
 {EventEmitter} = require "events"
 
-class Distributor
+class Distributor extends EventEmitter
   defaultExchangeOpts: {
     type: "topic"
     passive: false
@@ -17,6 +17,9 @@ class Distributor
     @connection = amqp.createConnection {url: @connectionString}
     @connection.once "ready", =>
       @isReady = true
+
+    @connection.on "error", (err) =>
+      @emit "error", err
     
     @resources = {}
 
@@ -30,7 +33,7 @@ class Distributor
     if @isReady
       @connection.exchange name, opts, cb
     else
-      @connection.on "ready", =>
+      @connection.once "ready", =>
         @connection.exchange name, opts, cb
 
   _createDefaultExchange: (cb) ->
@@ -42,9 +45,12 @@ class Distributor
     
   register: (resourceName, exchange, cb) ->
     if typeof exchange != "function"
+      return cb null, @resources[resourceName] if @resources[resourceName]
       return @_register resourceName, exchange, cb
     
     cb = exchange
+    return cb null, @resources[resourceName] if @resources[resourceName]
+
     @_createDefaultExchange (err, exchange) =>
       return cb err if err
       @_register resourceName, exchange, cb

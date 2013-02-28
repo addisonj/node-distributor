@@ -6,7 +6,6 @@ class Resource
     mandatory: false
     immediate: false
     deliveryMode: 2
-    priority: 0
   }
 
   constructor: (@routingKey, @exchange) ->
