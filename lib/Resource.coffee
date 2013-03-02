@@ -3,7 +3,7 @@ defaults = require "./defaultOpts"
 
 {capitialize} = require "./util"
 class Resource
-  constructor: (@routingKey, @exchange) ->
+  constructor: (@routingKey, @exchangeName, @distributor) ->
     @keys = [@routingKey]
 
   registerSubTopic: (subTopic) ->
@@ -11,6 +11,12 @@ class Resource
     @keys.push newKey
     pub = (message, opts, cb) =>  @_publish newKey, message, opts, cb
     @["publish#{capitialize(subTopic)}"] = pub
+
+  _getExchange: (cb) ->
+    return cb @exchange if @exchange
+
+    @distributor.createExchange @exchangeName, (@exchange) =>
+      cb @exchange
 
   # both opts and cb are optional
   _publish: (name, message, opts, cb) ->
@@ -21,14 +27,15 @@ class Resource
       cb = cb || ->
       opts = _.clone (opts|| defaults.publish), defaults.publish
 
-    @exchange.publish name, message, opts, cb
+    @_getExchange (exchange) ->
+      exchange.publish name, message, opts, cb
 
   publish: (message, opts, cb) ->
     @_publish @routingKey, message, opts, cb
 
   getInfo: ->
     info = {
-      exchange: @exchange.name
+      exchange: @exchangeName
       defaultTopic: @routingKey
       topics: @keys
     }

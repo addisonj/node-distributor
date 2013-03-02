@@ -14,15 +14,14 @@ var distributor = new Distributor("amqp://localhost:5672", "service_name", "exch
 // or
 var distributor = new Distributor({...amqp connection options...}, "service_name", "exchange_name")
 
-disributor.register("posts", function(err, postsResource) {
-  postsResource.publish({beep: "boop"})
-  postsResource.publish({beep: "loop"}, opts, function(err) {
-  })
-  postsResource.registerSubTopic("comments")
-  postsResource.publishComments({name: "Bob", message: "hi"})
-  // get your resources out
-  writeFile("resourceDefinitions.json", disributor.getResources())
+postsResoutce = disributor.register("posts")
+postsResource.publish({beep: "boop"})
+postsResource.publish({beep: "loop"}, opts, function(err) {
 })
+postsResource.registerSubTopic("comments")
+postsResource.publishComments({name: "Bob", message: "hi"})
+// get your resources out
+writeFile("resourceDefinitions.json", disributor.getResources())
 
   
 // consumer
@@ -34,15 +33,16 @@ var resourceDefintions = readFile("resourceDefinitions.json")
 var client = new Client("amqp://localhost:5672", resourceDefinitions)
 
 // want a work queue?
-client.posts.createWorker("shared_queue_name", function(err, worker) {
-  worker.subscribe(worker.defaultTopic, function(err, cb) {
-  })
+worker = client.posts.createWorker("shared_queue_name")
+worker.subscribe(worker.defaultTopic, function(err, cb) {
+  // ack when done
+  cb()
 })
 
 // or pub sub instead?
-client.posts.createSubscriber(function(err, worker) {
-  worker.subscribe("service_name.exchange_name.comments", function(err, cb) {
-  })
+worker = client.posts.createSubscriber()
+worker.subscribe("service_name.exchange_name.comments", function(err, cb) {
+  cb()
 })
 ```
 

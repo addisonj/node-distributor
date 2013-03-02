@@ -15,6 +15,7 @@ class Distributor extends EventEmitter
       @emit "error", err
     
     @resources = {}
+    @exchanges = {}
 
   createExchange: (name, opts, cb) ->
     if typeof opts == "function"
@@ -23,35 +24,22 @@ class Distributor extends EventEmitter
     else
       opts = _.clone opts, defaults.exchange
 
+    return cb @exchanges[name] if @exchanges[name]
+
     if @isReady
       @connection.exchange name, opts, cb
     else
       @connection.once "ready", =>
         @connection.exchange name, opts, cb
 
-  _createDefaultExchange: (cb) ->
-    return cb null, @exchange if @exchange
+  register: (resourceName, exchangeName) ->
+    exchangeName ||= @exchangeName
 
-    @createExchange @exchangeName, (exchange) =>
-      @exchange = exchange
-      cb null, exchange
-    
-  register: (resourceName, exchange, cb) ->
-    if typeof exchange != "function"
-      return cb null, @resources[resourceName] if @resources[resourceName]
-      return @_register resourceName, exchange, cb
-    
-    cb = exchange
-    return cb null, @resources[resourceName] if @resources[resourceName]
+    return @resources[resourceName] if @resources[resourceName]
 
-    @_createDefaultExchange (err, exchange) =>
-      return cb err if err
-      @_register resourceName, exchange, cb
-
-  _register: (resourceName, exchange, cb) ->
-    newResource = new Resource "#{@serviceName}.#{resourceName}", exchange
+    newResource = new Resource "#{@serviceName}.#{resourceName}", exchangeName, @
     @resources[resourceName] = newResource
-    cb null, newResource
+    return newResource
 
   getResources: ->
     resources = {}

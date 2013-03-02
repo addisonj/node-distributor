@@ -25,38 +25,29 @@ class Client extends EventEmitter
       @_createQueue.apply @, args
 
   _createQueue: (name, opts, cb) ->
-    return cb null, @_queues[name] if @_queues[name]
+    return cb @_queues[name] if @_queues[name]
 
     @connection.queue name, opts, (queue) =>
       @_queues[name] = queue if name
-      cb null, queue
-
-
-  _createWorker: (name, exchange, queue_opts, sub_opts, topics, defaultTopic, cb) ->
-    @createQueue name, queue_opts, (err, queue) ->
-      return cb err if err
-      cb null, new Worker queue, exchange, defaultTopic, topics, sub_opts
+      cb queue
 
   _makeResource: (params) -> 
     resourceMethods = {
-      createWorker: (name, opts, cb) =>
-        if typeof opts == "function"
-          cb = opts
+      createWorker: (name, opts) =>
+        if not opts
           opts = _.clone defaults.queue_worker
         else
           opts = _.defaults opts, defaults.queue_worker
 
-        @_createWorker name, params.exchange, opts, defaults.subscribe_worker, params.topics, params.defaultTopic, cb
+        return new Worker @, name, opts, params.exchange, params.defaultTopic, params.topics, defaults.subscribe_worker
 
-      createSubscriber: (opts, cb) =>
-        if typeof opts == "function"
-          cb = opts
+      createSubscriber: (opts) =>
+        if not opts
           opts = _.clone defaults.queue_subscriber
         else
           opts = _.defaults opts, defaults.queue_subscriber
 
-        # by sending in null, we let the server create the queue
-        @_createWorker "", params.exchange, opts, defaults.subscribe_subscriber, params.topics, params.defaultTopic, cb
+        return new Worker @, "", opts, params.exchange, params.defaultTopic, params.topics, defaults.subscribe_subscriber
     }
     return resourceMethods
 
