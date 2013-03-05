@@ -191,7 +191,7 @@ describe "Client", ->
 
 
   it "should work to create a worker on the client and subscribe without specifying a topic", (done) ->
-    worker = client.createWorker("bah")
+    worker = client.createWorker("bahbah")
     resource = distributor.register "testResource"
     assert.ok worker
     assert.equal worker.defaultTopic, "test_service.#"
