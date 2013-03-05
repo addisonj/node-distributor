@@ -41,11 +41,16 @@ class Distributor extends EventEmitter
     @resources[resourceName] = newResource
     return newResource
 
-  getResources: ->
+  getDefinition: ->
+    info = {}
     resources = {}
     for name, resource of @resources
       resources[name] = resource.getInfo()
 
-    return resources
+    info.resources = resources
+    info.connectionInfo = @connectInfo
+    info.serivceName = @serviceName
+    info.exchange = @exchangeName
+    return info
 
 module.exports = Distributor

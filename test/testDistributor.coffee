@@ -3,43 +3,48 @@ assert = require "assert"
 Distributor = require "../lib/Distributor"
 Client = require "../lib/Client"
 
-resourceList = {
-  testResource: {
-    exchange: "test_service_exchange"
-    defaultTopic: "test_service.testResource"
-    topics: [
-      "test_service.testResource"
-      "test_service.testResource.comments"
-    ]
+definition = {
+  resources: {
+    testResource: {
+      exchange: "test_service_exchange"
+      defaultTopic: "test_service.testResource"
+      topics: [
+        "test_service.testResource"
+        "test_service.testResource.comments"
+      ]
+    }
+    alt_exchange: {
+      exchange: "test_exchange_2"
+      defaultTopic: "test_service.alt_exchange"
+      topics: [
+        "test_service.alt_exchange"
+        "test_service.alt_exchange.boop"
+      ]
+    }
+    res1: {
+      exchange: "test_service_exchange"
+      defaultTopic: "test_service.res1"
+      topics: [
+        "test_service.res1"
+        "test_service.res1.foo"
+      ]
+    }
+    res2: {
+      exchange: "test_service_exchange"
+      defaultTopic: "test_service.res2"
+      topics: [
+        "test_service.res2"
+        "test_service.res2.bar"
+      ]
+    }
   }
-  alt_exchange: {
-    exchange: "test_exchange_2"
-    defaultTopic: "test_service.alt_exchange"
-    topics: [
-      "test_service.alt_exchange"
-      "test_service.alt_exchange.boop"
-    ]
-  }
-  res1: {
-    exchange: "test_service_exchange"
-    defaultTopic: "test_service.res1"
-    topics: [
-      "test_service.res1"
-      "test_service.res1.foo"
-    ]
-  }
-  res2: {
-    exchange: "test_service_exchange"
-    defaultTopic: "test_service.res2"
-    topics: [
-      "test_service.res2"
-      "test_service.res2.bar"
-    ]
-  }
+  connectionInfo: {url: "amqp://localhost:5672"}
+  serivceName: "test_service"
+  exchange: "test_service_exchange"
 }
 
 distributor = new Distributor("amqp://localhost:5672", "test_service", "test_service_exchange")
-client = new Client("amqp://localhost:5672", resourceList)
+client = new Client(definition)
 
 
 describe "Distributor", ->
@@ -86,7 +91,7 @@ describe "Distributor", ->
     res1.registerSubTopic "foo"
     res2 = distributor.register "res2"
     res2.registerSubTopic "bar"
-    assert.deepEqual distributor.getResources(), resourceList
+    assert.deepEqual distributor.getDefinition(), definition
     done()
 
 
@@ -122,8 +127,11 @@ describe "Client", ->
         cb()
         done()
 
-    resource.publishClientTest msg1
-    resource.publishClientTest msg2
+    # we timeout to make sure the queue is created and bound
+    setTimeout ->
+      resource.publishClientTest msg1
+      resource.publishClientTest msg2
+    , 500
 
   it "should be able to subscribe two subscribeers and have them both get it", (done) ->
     resource = distributor.register "testResource"
@@ -143,7 +151,58 @@ describe "Client", ->
       if count == 2
         done()
 
-    # we need this to take a second so the bind happens
     setTimeout ->
       resource.publishClientTestPubSub msg
+    , 500
+
+  it "should work to create a subscriber on the client", (done) ->
+    worker = client.createSubscriber()
+    resource = distributor.register "testResource"
+    assert.ok worker
+    assert.equal worker.defaultTopic, "test_service.#"
+    # this will call back multiple times possibly, we don't care
+    called = false
+    worker.subscribe worker.defaultTopic, (msg, cb) ->
+      if not called
+        called = true
+        done()
+
+
+    setTimeout ->
+      resource.publish "hello"
+    , 500
+
+  it "should work to create a worker on the client", (done) ->
+    worker = client.createWorker("bah")
+    resource = distributor.register "testResource"
+    assert.ok worker
+    assert.equal worker.defaultTopic, "test_service.#"
+    # this will call back multiple times possibly, we don't care
+    called = false
+    worker.subscribe worker.defaultTopic, (msg, cb) ->
+      if not called
+        called = true
+        done()
+
+
+    setTimeout ->
+      resource.publish "hello"
+    , 500
+
+
+  it "should work to create a worker on the client and subscribe without specifying a topic", (done) ->
+    worker = client.createWorker("bahbah")
+    resource = distributor.register "testResource"
+    assert.ok worker
+    assert.equal worker.defaultTopic, "test_service.#"
+    # this will call back multiple times possibly, we don't care
+    called = false
+    worker.subscribe (msg, cb) ->
+      if not called
+        called = true
+        done()
+
+
+    setTimeout ->
+      resource.publish "hello"
     , 500
