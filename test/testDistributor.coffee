@@ -188,3 +188,21 @@ describe "Client", ->
     setTimeout ->
       resource.publish "hello"
     , 500
+
+
+  it "should work to create a worker on the client and subscribe without specifying a topic", (done) ->
+    worker = client.createWorker("bah")
+    resource = distributor.register "testResource"
+    assert.ok worker
+    assert.equal worker.defaultTopic, "test_service.#"
+    # this will call back multiple times possibly, we don't care
+    called = false
+    worker.subscribe (msg, cb) ->
+      if not called
+        called = true
+        done()
+
+
+    setTimeout ->
+      resource.publish "hello"
+    , 500

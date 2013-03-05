@@ -15,6 +15,10 @@ class Worker
     if typeof opts == "function"
       fn = opts
       opts = _.clone @defaults
+    else if typeof key == 'function'
+      fn = key
+      key = @getDefaultTopic
+      opts = _.clone @defaults
     else
       opts = _.defaults opts, @defaults
 
