@@ -6,15 +6,16 @@ defaults = require "./defaultOpts"
 Worker = require "./Worker"
 
 class Client extends EventEmitter
-  constructor: (connString, resources, @connectOpts) ->
-    @connectInfo = if typeof connString == "object" then connString else {url: connString}
-    @connection = amqp.createConnection @connectInfo, @connectOpts
+  constructor: (@description, connectionOverride, connectionOpts) ->
+
+    @connectInfo = connectionOverride || description.connectionInfo
+    @connection = amqp.createConnection @connectInfo, connectionOpts
     @connection.once "ready", =>
       @_isReady = true
 
     @connection.on "error", (err) => @emit "error", err
 
-    @_process resources
+    @_process description.resources
     @_queues = {}
 
   createQueue: ->
@@ -30,6 +31,28 @@ class Client extends EventEmitter
     @connection.queue name, opts, (queue) =>
       @_queues[name] = queue if name
       cb queue
+
+  createWorker: (name, opts) ->
+    if not opts
+      opts = _.clone defaults.queue_worker
+    else
+      opts = _.defaults opts, defaults.queue_worker
+
+    defaultTopic = "#{@description.serivceName}.#"
+    topics = [defaultTopic]
+
+    return new Worker @, name, opts, @description.exchange, defaultTopic, topics, defaults.subscribr_worker
+
+  createSubscriber: (opts) ->
+    if not opts
+      opts = _.clone defaults.queue_worker
+    else
+      opts = _.defaults opts, defaults.queue_worker
+
+    defaultTopic = "#{@description.serivceName}.#"
+    topics = [defaultTopic]
+
+    return new Worker @, "", opts, @description.exchange, defaultTopic, topics, defaults.subscribr_subscriber
 
   _makeResource: (params) -> 
     resourceMethods = {
