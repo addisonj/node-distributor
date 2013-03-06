@@ -41,7 +41,7 @@ class Client extends EventEmitter
     defaultTopic = "#{@description.serivceName}.#"
     topics = [defaultTopic]
 
-    return new Worker @, name, opts, @description.exchange, defaultTopic, topics, defaults.subscribr_worker
+    return new Worker @, name, opts, @description.exchange, defaultTopic, topics, defaults.subscribe_worker
 
   createSubscriber: (opts) ->
     if not opts
@@ -52,7 +52,7 @@ class Client extends EventEmitter
     defaultTopic = "#{@description.serivceName}.#"
     topics = [defaultTopic]
 
-    return new Worker @, "", opts, @description.exchange, defaultTopic, topics, defaults.subscribr_subscriber
+    return new Worker @, "", opts, @description.exchange, defaultTopic, topics, defaults.subscribe_subscriber
 
   _makeResource: (params) -> 
     resourceMethods = {
