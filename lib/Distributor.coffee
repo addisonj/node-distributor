@@ -10,6 +10,8 @@ class Distributor extends EventEmitter
     @connection = amqp.createConnection @connectInfo, @connectOpts
     @connection.once "ready", =>
       @isReady = true
+      # we need to create the exchange on start so clients can connect
+      @createExchange @exchangeName, ->
 
     @connection.on "error", (err) =>
       @emit "error", err
