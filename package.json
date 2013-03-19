@@ -1,6 +1,6 @@
 {
   "name": "distributor",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Easy distribution of resources through AMQP",
   "main": "index.js",
   "scripts": {
