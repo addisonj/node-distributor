@@ -14,6 +14,7 @@ class Client extends EventEmitter
       @_isReady = true
 
     @connection.on "error", (err) => @emit "error", err
+    @connection.on "closed", (arg) => @emit "closed", arg
 
     @_process description.resources
     @_queues = {}
