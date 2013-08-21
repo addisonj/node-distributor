@@ -1,6 +1,6 @@
 {
   "name": "distributor",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Easy distribution of resources through AMQP",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "underscore": "~1.4.4",
-    "amqp": "git://github.com/postwait/node-amqp.git#127a4ca3"
+    "amqp": "git://github.com/postwait/node-amqp.git#bf276583"
   },
   "devDependencies": {
     "mocha": "~1.8.1",
