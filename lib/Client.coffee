@@ -55,7 +55,8 @@ class Client extends EventEmitter
 
     return new Worker @, "", opts, @description.exchange, defaultTopic, topics, defaults.subscribe_subscriber
 
-  _makeResource: (params) -> 
+  _makeResource: (params, defaultTopic) ->
+    defaultTopic = defaultTopic or params.defaultTopic
     resourceMethods = {
       createWorker: (name, opts) =>
         if not opts
@@ -63,7 +64,7 @@ class Client extends EventEmitter
         else
           opts = _.defaults opts, defaults.queue_worker
 
-        return new Worker @, name, opts, params.exchange, params.defaultTopic, params.topics, defaults.subscribe_worker
+        return new Worker @, name, opts, params.exchange, defaultTopic, params.topics, defaults.subscribe_worker
 
       createSubscriber: (opts) =>
         if not opts
@@ -78,5 +79,10 @@ class Client extends EventEmitter
   _process: (resources) ->
     for resource, params of resources
       @[resource] = @_makeResource params
+
+      for topic in params.topics
+        topicRegEx = new RegExp "#{params.defaultTopic}[.]*"
+        subTopic = topic.replace topicRegEx, ''
+        @[resource][subTopic] = @_makeResource params, topic if subTopic
 
 module.exports = Client

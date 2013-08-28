@@ -189,6 +189,24 @@ describe "Client", ->
       resource.publish "hello"
     , 500
 
+  it "should work to create a worker on a sub topic", (done) ->
+    worker = client.testResource.comments.createWorker "subTopicWorker"
+    resource = distributor.register "testResource"
+    resource.registerSubTopic 'comments'
+    assert.ok worker
+    assert.ok resource
+
+    data = {hi: 'mom'}
+
+    worker.subscribe (msg, cb) ->
+      assert.ok msg
+      assert.equal msg.hi, data.hi
+      done()
+
+    setTimeout ->
+      resource.publishComments data
+    , 500
+
 
   it "should work to create a worker on the client and subscribe without specifying a topic", (done) ->
     worker = client.createWorker("bahbah")
