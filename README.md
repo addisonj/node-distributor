@@ -1,3 +1,5 @@
+https://travis-ci.org/addisonj/node-distributor.png
+
 ## Distributor
 Resource based distribution of messages
 
