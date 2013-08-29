@@ -27,8 +27,6 @@ class Client extends EventEmitter
       @_createQueue.apply @, args
 
   _createQueue: (name, opts, cb) ->
-    return cb @_queues[name] if @_queues[name]
-
     @connection.queue name, opts, (queue) =>
       @_queues[name] = queue if name
       cb queue
