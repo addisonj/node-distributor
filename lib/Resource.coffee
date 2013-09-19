@@ -30,6 +30,9 @@ class Resource
     @_getExchange (exchange) ->
       exchange.publish name, message, opts, cb
 
+  # expose publishing with a name
+  publishWithTopic: -> @_publish.apply @, arguments
+
   publish: (message, opts, cb) ->
     @_publish @routingKey, message, opts, cb
 

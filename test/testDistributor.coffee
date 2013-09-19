@@ -94,7 +94,6 @@ describe "Distributor", ->
     assert.deepEqual distributor.getDefinition(), definition
     done()
 
-
   it "shoulnd't require a callback when publishing", (done) ->
     resource = distributor.register "testResource"
     resource.publish({1: 2})
@@ -102,6 +101,8 @@ describe "Distributor", ->
     resource.registerSubTopic "comments"
     resource.publishComments {baz: "bah"}
     done()
+
+
 
 describe "Client", ->
   it "should have an object with each resource", ->
@@ -207,6 +208,19 @@ describe "Client", ->
       resource.publishComments data
     , 500
 
+  it "should also work to publish a message with any old topic", (done) ->
+    worker = client.testResource.createWorker "randomWorker"
+    resource = distributor.register "testResource"
+    topic = "totally.random.key"
+    data = {boo: 2}
+    worker.subscribe topic, (msg, cb) ->
+      assert.ok msg
+      assert.equal msg.boo, data.boo
+      done()
+
+    setTimeout ->
+      resource.publishWithTopic(topic, data)
+    , 500
 
   it "should work to create a worker on the client and subscribe without specifying a topic", (done) ->
     worker = client.createWorker("bahbah")
