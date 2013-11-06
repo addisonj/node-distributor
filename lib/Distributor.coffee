@@ -51,7 +51,7 @@ class Distributor extends EventEmitter
 
     info.resources = resources
     info.connectionInfo = @connectInfo
-    info.serivceName = @serviceName
+    info.serviceName = @serviceName
     info.exchange = @exchangeName
     return info
 

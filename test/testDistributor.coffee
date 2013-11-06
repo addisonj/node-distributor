@@ -39,7 +39,7 @@ definition = {
     }
   }
   connectionInfo: {url: "amqp://localhost:5672"}
-  serivceName: "test_service"
+  serviceName: "test_service"
   exchange: "test_service_exchange"
 }
 
