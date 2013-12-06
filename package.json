@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/addisonj/distributor"
+    "url": "git://github.com/addisonj/node-distributor"
   },
   "keywords": [
     "amqp",
