@@ -16,14 +16,14 @@ var distributor = new Distributor("amqp://localhost:5672", "service_name", "exch
 // or
 var distributor = new Distributor({...amqp connection options...}, "service_name", "exchange_name")
 
-postsResoutce = disributor.register("posts")
+postsResoutce = distributor.register("posts")
 postsResource.publish({beep: "boop"})
 postsResource.publish({beep: "loop"}, opts, function(err) {
 })
 postsResource.registerSubTopic("comments")
 postsResource.publishComments({name: "Bob", message: "hi"})
 // get your resources out
-writeFile("resourceDefinitions.json", disributor.getDefinition())
+writeFile("resourceDefinitions.json", distributor.getDefinition())
 
   
 // consumer
@@ -48,7 +48,7 @@ worker.subscribe("service_name.posts.comments", function(msg, cb) {
 })
 
 // want a global worker instead
-worker = client.createSubsciber()
+worker = client.createSubscriber()
 // subscribes to "service_name.#" by deafult
 worker.subscribe(function(msg, cb) {
   cb()
