@@ -6,7 +6,7 @@ class Worker
   getTopics: -> @topics
   getDefaultTopic: -> @defaultTopic
   getQueue: (cb) ->
-    return cb null, @queue if @queue
+    return cb @queue if @queue
 
     @client.createQueue @name, @queueOpts, (@queue) =>
       cb @queue
