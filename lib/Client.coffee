@@ -37,7 +37,7 @@ class Client extends EventEmitter
     else
       opts = _.defaults opts, defaults.queue_worker
 
-    defaultTopic = "#{@description.serivceName}.#"
+    defaultTopic = "#{@description.serviceName}.#"
     topics = [defaultTopic]
 
     return new Worker @, name, opts, @description.exchange, defaultTopic, topics, defaults.subscribe_worker
@@ -48,7 +48,7 @@ class Client extends EventEmitter
     else
       opts = _.defaults opts, defaults.queue_worker
 
-    defaultTopic = "#{@description.serivceName}.#"
+    defaultTopic = "#{@description.serviceName}.#"
     topics = [defaultTopic]
 
     return new Worker @, "", opts, @description.exchange, defaultTopic, topics, defaults.subscribe_subscriber
